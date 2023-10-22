@@ -49,6 +49,8 @@ kotlin {
                 implementation("com.rometools:rome:1.18.0")
                 implementation("com.squareup.okhttp3:okhttp:4.10.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+                implementation("org.jsoup:jsoup:1.15.3")
+
 
             }
         }

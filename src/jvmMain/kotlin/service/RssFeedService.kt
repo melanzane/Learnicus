@@ -1,3 +1,5 @@
+package service
+
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 import kotlinx.serialization.Serializable

@@ -1,6 +1,6 @@
-import kotlin.test.Test
-import kotlin.test.assertNotNull
-
+import org.junit.jupiter.api.Test
+import service.fetchAndParseRssFeed
+import org.junit.jupiter.api.Assertions.assertNotNull
 class RssFeedTest {
 
     @Test
