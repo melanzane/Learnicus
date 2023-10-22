@@ -4,8 +4,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.await
 import org.w3c.fetch.RequestInit
-import react.create
-import react.dom.client.createRoot
 import kotlinx.serialization.json.Json
 
 suspend fun fetchFeedItems(): List<FeedItem> {
@@ -29,11 +27,7 @@ fun main() {
     GlobalScope.launch {
         try {
             val items = fetchFeedItems()
-
-            val feedList = FeedList.create {
-                this.items = items
-            }
-            createRoot(container).render(feedList)
+            renderFeedList(container, items)
         } catch (error: Throwable) {
             console.error("Failed to fetch RSS feed items:", error)
         }

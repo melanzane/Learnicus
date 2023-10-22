@@ -57,12 +57,9 @@ kotlin {
         val jvmTest by getting
         val jsMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:18.2.0-pre.385")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:18.2.0-pre.385")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:11.10.4-pre.385")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.4")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-
             }
         }
         val jsTest by getting

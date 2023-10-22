@@ -1,11 +1,5 @@
+import kotlinx.browser.document
 import kotlinx.serialization.Serializable
-import react.*
-import react.dom.html.ReactHTML.li
-import react.dom.html.ReactHTML.ul
-
-external interface FeedListProps : Props {
-    var items: List<FeedItem>
-}
 
 @Serializable
 data class FeedItem(
@@ -16,12 +10,15 @@ data class FeedItem(
     val guid: String
 )
 
-val FeedList = FC<FeedListProps> { props ->
-    ul {
-        props.items.forEach { item ->
-            li {
-                +"${item.title}: ${item.link}"
-            }
-        }
+fun renderFeedList(container: dynamic, items: List<FeedItem>) {
+    val ul = document.createElement("ul")
+    items.forEach { item ->
+        val li = document.createElement("li")
+        val a = document.createElement("a")
+        a.textContent = item.title
+        a.setAttribute("href", item.link)
+        li.appendChild(a)
+        ul.appendChild(li)
     }
+    container.appendChild(ul)
 }
