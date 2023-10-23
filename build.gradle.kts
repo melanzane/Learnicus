@@ -54,7 +54,11 @@ kotlin {
 
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation("io.ktor:ktor-server-test-host:2.1.1")
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:11.10.4-pre.385")

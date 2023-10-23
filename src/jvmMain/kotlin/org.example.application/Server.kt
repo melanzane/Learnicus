@@ -14,6 +14,41 @@ import kotlinx.html.*
 import service.fetchAndParseRssFeed
 import service.fetchUrnIdFromUrl
 
+fun Application.module() {
+    routing {
+        get("/") {
+            call.respondHtml(HttpStatusCode.OK, HTML::index)
+        }
+        static("/static") {
+            resources()
+        }
+        get("/fetchRss") {
+            val url = "https://www.srf.ch/news/bnf/rss/1890"
+            val jsonString = fetchAndParseRssFeed(url)
+            if (jsonString != null) {
+                call.respondText(jsonString, contentType = ContentType.Application.Json)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to fetch or parse the RSS feed.")
+            }
+        }
+
+        get("/article-json-url") {
+            val originalUrl = call.parameters["originalUrl"]
+            if (originalUrl != null) {
+                val urnId = fetchUrnIdFromUrl(originalUrl)
+                if (urnId != null) {
+                    val jsonResponseUrl = "https://www.srf.ch/article/$urnId/json"
+                    call.respond(HttpStatusCode.OK, jsonResponseUrl)
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "URN ID not found.")
+                }
+            } else {
+                call.respond(HttpStatusCode.BadRequest, "Please provide an 'originalUrl' parameter.")
+            }
+        }
+    }
+}
+
 fun HTML.index() {
     head {
         title("Hello from Learnicus!")
@@ -31,41 +66,6 @@ fun HTML.index() {
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
-        routing {
-            get("/") {
-                call.respondHtml(HttpStatusCode.OK, HTML::index)
-            }
-            static("/static") {
-                resources()
-            }
-            get("/fetchRss") {
-                val url = "https://www.srf.ch/news/bnf/rss/1890"
-                val jsonString = fetchAndParseRssFeed(url)
-                if (jsonString != null) {
-                    call.respondText(jsonString, contentType = ContentType.Application.Json)
-                } else {
-                    call.respond(HttpStatusCode.InternalServerError, "Failed to fetch or parse the RSS feed.")
-                }
-            }
-
-            get("/article-json-url") {
-                val originalUrl = call.parameters["originalUrl"]
-                if (originalUrl != null) {
-                    val urnId = fetchUrnIdFromUrl(originalUrl)
-                    if (urnId != null) {
-                        val jsonResponseUrl = "https://www.srf.ch/article/$urnId/json"
-                        call.respond(HttpStatusCode.OK, jsonResponseUrl)
-                    } else {
-                        call.respond(HttpStatusCode.NotFound, "URN ID not found.")
-                    }
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "Please provide an 'originalUrl' parameter.")
-                }
-            }
-
-
-
-        }
+        module()
     }.start(wait = true)
 }
-

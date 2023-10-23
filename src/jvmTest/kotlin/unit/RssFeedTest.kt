@@ -1,3 +1,5 @@
+package unit
+
 import org.junit.jupiter.api.Test
 import service.fetchAndParseRssFeed
 import org.junit.jupiter.api.Assertions.assertNotNull
