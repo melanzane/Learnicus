@@ -11,6 +11,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import service.fetchAndParseJsonFeed
 import service.fetchAndParseRssFeed
 import service.fetchUrnIdFromUrl
 
@@ -46,7 +47,26 @@ fun Application.module() {
                 call.respond(HttpStatusCode.BadRequest, "Please provide an 'originalUrl' parameter.")
             }
         }
+
+        get("/fetchArticleJson") {
+            val jsonUrl = call.parameters["jsonUrl"]
+            if (jsonUrl != null) {
+                val jsonResponse = fetchAndParseJsonFeed(jsonUrl)
+                if (jsonResponse != null) {
+                    call.respondText(jsonResponse, contentType = ContentType.Application.Json)
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to fetch or parse the JSON article.")
+                }
+            } else {
+                call.respond(HttpStatusCode.BadRequest, "Please provide a 'url' parameter.")
+            }
+        }
+
+
+
     }
+
+
 }
 
 fun HTML.index() {
