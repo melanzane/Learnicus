@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "1.8.10"
+    kotlin("multiplatform") version "1.9.10"
     kotlin("plugin.serialization") version "1.9.10"
     application
 }
@@ -8,15 +8,19 @@ group = "org.example"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    jcenter()
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "17"
         }
         withJava()
         testRuns["test"].executionTask.configure {
@@ -42,8 +46,14 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-server-netty:2.1.1")
-                implementation("io.ktor:ktor-server-html-builder-jvm:2.1.1")
+                implementation("io.ktor:ktor-server-netty:2.3.5")
+                implementation("io.ktor:ktor-server-html-builder-jvm:2.3.5")
+                implementation("io.ktor:ktor-client-core:2.3.5")
+                implementation("io.ktor:ktor-client-json:2.3.5")
+                implementation("io.ktor:ktor-client-serialization:2.3.5")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
+                implementation("io.ktor:ktor-client-logging:2.3.5")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.5")
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
                 implementation("org.slf4j:slf4j-simple:2.0.7")
                 implementation("com.rometools:rome:1.18.0")
@@ -56,7 +66,7 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                implementation("io.ktor:ktor-server-test-host:2.1.1")
+                implementation("io.ktor:ktor-server-test-host:2.3.5")
             }
         }
         val jsMain by getting {

@@ -11,6 +11,7 @@ suspend fun fetchFeedItems(): List<FeedItem> {
         method = "GET"
     )).await()
 
+
     if (!response.ok) {
         throw Exception("Network request failed with status ${response.status}: ${response.statusText}")
     }

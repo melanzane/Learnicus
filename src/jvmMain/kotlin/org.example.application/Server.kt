@@ -2,27 +2,33 @@ package org.example.application
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.*
+import kotlinx.html.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.html.*
-import io.ktor.server.http.content.*
+import io.ktor.server.html.respondHtml
+import io.ktor.server.http.content.resources
+import io.ktor.server.http.content.static
+import io.ktor.server.http.content.staticFiles
+import io.ktor.server.http.content.staticResources
 import io.ktor.server.netty.Netty
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
-import io.ktor.server.routing.*
-import kotlinx.html.*
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
 import service.fetchAndParseJsonFeed
 import service.fetchAndParseRssFeed
 import service.fetchUrnIdFromUrl
+import service.translateArticle
 
 fun Application.module() {
     routing {
         get("/") {
             call.respondHtml(HttpStatusCode.OK, HTML::index)
         }
-        static("/static") {
-            resources()
+        staticResources("/static", "") {
         }
+
         get("/fetchRss") {
             val url = "https://www.srf.ch/news/bnf/rss/1890"
             val jsonString = fetchAndParseRssFeed(url)
@@ -57,6 +63,16 @@ fun Application.module() {
                 } else {
                     call.respond(HttpStatusCode.InternalServerError, "Failed to fetch or parse the JSON article.")
                 }
+            } else {
+                call.respond(HttpStatusCode.BadRequest, "Please provide a 'url' parameter.")
+            }
+        }
+
+        get("/translateArticle") {
+            val url = call.parameters["url"]
+            if (url != null) {
+                val translatedContent = call.translateArticle(url)
+                call.respondText(translatedContent, contentType = ContentType.Text.Plain)
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Please provide a 'url' parameter.")
             }
