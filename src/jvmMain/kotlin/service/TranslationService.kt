@@ -6,35 +6,24 @@ import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.RedirectResponseException
 import io.ktor.client.plugins.ServerResponseException
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
-private const val OPENAI_API_ENDPOINT = "https://api.openai.com/v1/engines/davinci/completions"
-private const val API_KEY = "secret_key"
+private const val DEEPL_API_ENDPOINT = "https://api-free.deepl.com/v2/translate"
+private const val API_KEY = "my_secret"
 
 suspend fun ApplicationCall.translateArticle(url: String): String {
     val jsonResponse = fetchAndParseJsonFeed(url) ?: return "Failed to fetch or parse the JSON article."
     return try {
-        translateWithOpenAI(jsonResponse)
+        translateWithDeepL(jsonResponse)
     } catch (e: Exception) {
         "Failed to translate due to: ${e.localizedMessage}"
     }
 }
 
-private suspend fun translateWithOpenAI(text: String): String {
+private suspend fun translateWithDeepL(text: String): String {
     val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-            })
-        }
         install(HttpTimeout) {
             requestTimeoutMillis = 30000  // 30 seconds
             connectTimeoutMillis = 30000  // 30 seconds
@@ -49,26 +38,14 @@ private suspend fun translateWithOpenAI(text: String): String {
                 }
             }
         }
-
     }
 
     return client.use {
-        val translationRequest = TranslationRequest(
-            prompt = "Maintain the JSON structure and only translate the textual content from German to French: $text",
-            max_tokens = 2048
-        )
-
-        val response: HttpResponse = it.post(OPENAI_API_ENDPOINT) {
-            header("Authorization", "Bearer $API_KEY")
-            contentType(ContentType.Application.Json)
-            setBody(translationRequest)
+        val response: HttpResponse = it.post(DEEPL_API_ENDPOINT) {
+            header("Authorization", "DeepL-Auth-Key $API_KEY")
+            parameter("text", text)
+            parameter("target_lang", "FR") // target language is French
         }
         response.bodyAsText()
     }
 }
-
-@Serializable
-data class TranslationRequest(
-    val prompt: String,
-    val max_tokens: Int
-)
