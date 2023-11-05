@@ -1,27 +1,29 @@
 package org.example.application
 
+import config.DatabaseConfig
+import database.DatabaseFactory
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationStarting
 import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.html.respondHtml
-import io.ktor.server.http.content.resources
-import io.ktor.server.http.content.static
-import io.ktor.server.http.content.staticFiles
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.netty.Netty
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.launch
 import service.fetchAndParseJsonFeed
 import service.fetchAndParseRssFeed
 import service.fetchUrnIdFromUrl
 import service.translateArticle
 
 fun Application.module() {
+
     routing {
         get("/") {
             call.respondHtml(HttpStatusCode.OK, HTML::index)
@@ -102,6 +104,14 @@ fun HTML.index() {
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
+        // This block runs when the application is starting up.
+        environment.monitor.subscribe(ApplicationStarting) {
+            // You can use the 'launch' function provided by Ktor to start a coroutine.
+            launch {
+                DatabaseFactory.init(DatabaseConfig())
+            }
+        }
+
         module()
     }.start(wait = true)
 }

@@ -60,6 +60,9 @@ kotlin {
                 implementation("com.squareup.okhttp3:okhttp:4.10.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
                 implementation("org.jsoup:jsoup:1.15.3")
+                implementation("org.litote.kmongo:kmongo:4.10.0")
+                implementation("org.litote.kmongo:kmongo-async:4.10.0")
+                implementation("org.litote.kmongo:kmongo-coroutine:4.10.0")
 
 
             }
