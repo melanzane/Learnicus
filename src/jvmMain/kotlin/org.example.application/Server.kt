@@ -16,11 +16,22 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 import service.fetchAndParseJsonFeed
 import service.fetchAndParseRssFeed
+import service.fetchArticlesPeriodically
 import service.fetchUrnIdFromUrl
 import service.translateArticle
+
+// Define the application scope for coroutines
+val applicationScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
+val logger = LoggerFactory.getLogger("ApplicationLogger")
+
 
 fun Application.module() {
 
@@ -103,15 +114,31 @@ fun HTML.index() {
 }
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
-        // This block runs when the application is starting up.
-        environment.monitor.subscribe(ApplicationStarting) {
-            // You can use the 'launch' function provided by Ktor to start a coroutine.
-            launch {
+    // Prepare the server but do not start it immediately.
+    val server = embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
+        module() // Your application's module function where routing is configured
+    }
+
+    // Subscribe to the ApplicationStarting event to perform initialization tasks.
+    server.environment.monitor.subscribe(ApplicationStarting) {
+        logger.info("Application is starting, preparing to initialize database...")
+        // Launch a coroutine in the applicationScope to initialize the database.
+        applicationScope.launch {
+            try {
                 DatabaseFactory.init(DatabaseConfig())
+                logger.info("Initialized database")
+            } catch (e: Exception) {
+                logger.error("Error initializing the database", e)
             }
         }
 
-        module()
-    }.start(wait = true)
+        // Also, start the periodic fetching task in the applicationScope.
+        applicationScope.fetchArticlesPeriodically()
+        logger.info("Started to fetch articles")
+    }
+
+    // Start the server and wait for it to finish.
+    server.start(wait = true)
 }
+
+

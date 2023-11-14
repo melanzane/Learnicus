@@ -49,6 +49,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-netty:2.3.5")
                 implementation("io.ktor:ktor-server-html-builder-jvm:2.3.5")
                 implementation("io.ktor:ktor-client-core:2.3.5")
+                implementation("io.ktor:ktor-client-cio:2.3.5")
                 implementation("io.ktor:ktor-client-json:2.3.5")
                 implementation("io.ktor:ktor-client-serialization:2.3.5")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
@@ -70,6 +71,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation("io.ktor:ktor-server-test-host:2.3.5")
+                implementation("io.mockk:mockk:1.13.7")
             }
         }
         val jsMain by getting {

@@ -15,7 +15,7 @@ object DatabaseFactory {
 
     suspend fun init(config: DatabaseConfig) {
         // Construct the MongoDB URI including the username and password
-        val mongoURI = "mongodb://${config.username}:${config.password}@${config.host}:${config.port}/${config.databaseName}"
+        val mongoURI = "mongodb://${config.username}:${config.password}@${config.host}:${config.port}/${config.source}"
 
         // Create a client with the specified URI
         client = KMongo.createClient(mongoURI).coroutine

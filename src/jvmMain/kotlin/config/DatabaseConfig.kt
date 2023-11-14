@@ -12,6 +12,7 @@ class DatabaseConfig {
     val databaseName = config.property("db.databaseName").getString()
     val username =  config.property("db.username").getString()
     val password = config.property("db.password").getString()
+    val source = config.property("db.authSource").getString()
 
 }
 

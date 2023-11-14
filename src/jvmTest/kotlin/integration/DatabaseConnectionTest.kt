@@ -26,14 +26,16 @@ class DatabaseTests {
         val config = HoconApplicationConfig(ConfigFactory.load("application.properties"))
 
         // Retrieve properties using config.property function
-        val user = config.property("db.username").getString()
-        val password = config.property("db.password").getString()
+        val user = config.property("db.testusername").getString()
+        val password = config.property("db.testpassword").getString()
         val dbHost = config.property("db.host").getString()
         val dbPort = config.property("db.port").getString()
+        val dbAuthSource = config.property("db.testauthSource").getString()
+
 
 
         // Initialize the database and collection with a test database
-        val client = KMongo.createClient("mongodb://$user:$password@$dbHost:$dbPort").coroutine
+        val client = KMongo.createClient("mongodb://$user:$password@$dbHost:$dbPort/$dbAuthSource").coroutine
         database = client.getDatabase("testDatabase")
         articlesCollection = database.getCollection<Article>()
 
@@ -49,13 +51,13 @@ class DatabaseTests {
 
     @Test
     fun `writing to the database works`() = runBlocking {
-        // Arrange
+        // when
         val article = Article("source123", "Some content")
 
-        // Act
+        // then
         articlesCollection.insertOne(article)
 
-        // Assert
+        // assert
         val retrievedArticle = articlesCollection.findOne(Article::sourceId eq "source123")
         assert(retrievedArticle != null)
         assert(retrievedArticle?.content == "Some content")
